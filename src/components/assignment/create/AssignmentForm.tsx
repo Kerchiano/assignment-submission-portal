@@ -55,7 +55,7 @@ export default function AssignmentForm({ levels }: AssignmentFormProps) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-4 mt-10 w-[380px] flex flex-col items-center"
+      className="space-y-4 mt-10 w-full max-w-md px-4 sm:px-6 md:px-0 flex flex-col items-center"
     >
       <InputField
         label="Name"
