@@ -11,7 +11,8 @@ import {
 } from "@/utils/schemas/create-assignment.schema";
 import { submitAssignment } from "@/utils/actions/create-assignment.action";
 import { useRouter } from "next/navigation";
-import { ROUTE } from '@/utils/routes';
+import { ROUTE } from "@/utils/routes";
+import { useState } from "react";
 
 interface AssignmentFormProps {
   levels: string[];
@@ -22,34 +23,36 @@ export default function AssignmentForm({ levels }: AssignmentFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-    setError,
     setValue,
     clearErrors,
   } = useForm<CreateAssignmentFormType>({
     resolver: zodResolver(createAssignmentSchema),
   });
 
+  const [serverErrors, setServerErrors] = useState<string[]>([]);
+
   const router = useRouter();
 
   const onSubmit = async (data: CreateAssignmentFormType) => {
+    setServerErrors([]);
     const result = await submitAssignment(data);
     if (!result?.success) {
-      if (result.apiError && typeof result.apiError === "object") {
-        Object.entries(result.apiError).forEach(([field, messages]) => {
-          if (messages && messages.length > 0) {
-            setError(field as keyof CreateAssignmentFormType, {
-              message: messages[0],
-            });
-          }
-        });
+      if (Array.isArray(result.apiError)) {
+        setServerErrors(result.apiError);
+      } else if (typeof result.apiError === "string") {
+        setServerErrors([result.apiError]);
+      } else {
+        setServerErrors(["An unknown error occurred."]);
       }
-    } else {
-      localStorage.setItem(
-        "thankYouData",
-        JSON.stringify({ message: result.message, data: result.data })
-      );
-      router.push(`${ROUTE.THANK_YOU}`);
+      return;
     }
+
+    localStorage.setItem(
+      "thankYouData",
+      JSON.stringify({ message: result.message, data: result.data })
+    );
+
+    router.push(ROUTE.THANK_YOU);
   };
 
   return (
@@ -86,6 +89,13 @@ export default function AssignmentForm({ levels }: AssignmentFormProps) {
         }}
         error={errors.candidate_level?.message}
       />
+      {serverErrors.length > 0 && (
+        <div className="text-red-500 space-y-1 text-sm mr-auto">
+          {serverErrors.map((err, idx) => (
+            <p key={idx}>{err}</p>
+          ))}
+        </div>
+      )}
       <SubmitButton />
     </form>
   );

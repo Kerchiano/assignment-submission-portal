@@ -1,6 +1,5 @@
 "use server";
 
-import { mapErrorsToFields } from "@/utils/functions/mapErrorsToFields";
 import {
   CreateAssignmentFormType,
   createAssignmentSchema,
@@ -13,19 +12,15 @@ export async function submitAssignment(formData: CreateAssignmentFormType) {
     return { success: false, errors: validated.error.flatten().fieldErrors };
   }
 
-  const res = await fetch(
-    `${process.env.API_BASE_URL}/assignments`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    }
-  );
+  const res = await fetch(`${process.env.API_BASE_URL}/assignments`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(formData),
+  });
 
   const resData = await res.json();
   if (!res.ok) {
-    const errors = mapErrorsToFields(resData.errors || []);
-    return { success: false, apiError: errors };
+    return { success: false, apiError: resData.errors };
   }
 
   return { success: true, message: resData.message, data: resData.data };
