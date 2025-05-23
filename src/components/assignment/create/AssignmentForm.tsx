@@ -34,7 +34,6 @@ export default function AssignmentForm({ levels }: AssignmentFormProps) {
   const onSubmit = async (data: CreateAssignmentFormType) => {
     const result = await submitAssignment(data);
     if (!result?.success) {
-      console.log(result);
       if (result.apiError && typeof result.apiError === "object") {
         Object.entries(result.apiError).forEach(([field, messages]) => {
           if (messages && messages.length > 0) {

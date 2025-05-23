@@ -1,6 +1,5 @@
 "use server";
 
-import { API_BASE_URL } from "@/lib/constants";
 import { mapErrorsToFields } from "@/utils/functions/mapErrorsToFields";
 import {
   CreateAssignmentFormType,
@@ -15,7 +14,7 @@ export async function submitAssignment(formData: CreateAssignmentFormType) {
   }
 
   const res = await fetch(
-    `${API_BASE_URL}/assignments`,
+    `${process.env.API_BASE_URL}/assignments`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -24,7 +23,6 @@ export async function submitAssignment(formData: CreateAssignmentFormType) {
   );
 
   const resData = await res.json();
-
   if (!res.ok) {
     const errors = mapErrorsToFields(resData.errors || []);
     return { success: false, apiError: errors };
